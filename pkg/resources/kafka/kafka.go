@@ -969,7 +969,7 @@ func (r *Reconciler) handleRollingUpgrade(log logr.Logger, desiredPod, currentPo
 
 			// If multiple concurrent restarts and broker failures allowed, restart only brokers from the same AZ
 			if concurrentBrokerRestartsAllowed > 1 && r.KafkaCluster.Spec.RollingUpgradeConfig.FailureThreshold > 1 {
-				if r.existsFailedBrokerFromAnotherAz(currentPodAz, impactedReplicas) {
+				if r.existsFailedBrokerFromAnotherRack(currentPodAz, impactedReplicas) {
 					return errorfactory.New(errorfactory.ReconcileRollingUpgrade{}, errors.New("broker is not healthy from another AZ"), "rolling upgrade in progress")
 				}
 			}
@@ -994,7 +994,7 @@ func (r *Reconciler) handleRollingUpgrade(log logr.Logger, desiredPod, currentPo
 	return nil
 }
 
-func (r *Reconciler) existsFailedBrokerFromAnotherAz(currentPodAz string, impactedReplicas map[int32]struct{}) bool {
+func (r *Reconciler) existsFailedBrokerFromAnotherRack(currentPodAz string, impactedReplicas map[int32]struct{}) bool {
 	if currentPodAz == "" && len(impactedReplicas) > 0 {
 		return true
 	}
